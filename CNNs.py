@@ -56,3 +56,32 @@ model.fit(X_train, y_train, batch_size=32, epochs=10, verbose=1, validation_data
 # evaluate the model
 scores = model.evaluate(X_test, y_test, verbose=0)
 print("Accuracy: {}\n Error: {}".format(scores[1], 100-scores[1]*100))
+
+# Convolutional Neural Network with Two Sets of Convolutional and Pooling Layers
+def convolutional_model():
+    # create model
+    model = Sequential()
+    model.add(Input(shape=(28, 28, 1)))
+    model.add(Conv2D(16, (5, 5), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+
+    model.add(Conv2D(8, (2, 2), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+
+    model.add(Flatten())
+    model.add(Dense(100, activation='relu'))
+    model.add(Dense(num_classes, activation='softmax'))
+
+    # Compile model
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    return model
+
+# build the model
+model = convolutional_model()
+
+# fit the model
+model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=10, batch_size=200, verbose=2)
+
+# evaluate the model
+scores = model.evaluate(X_test, y_test, verbose=0)
+print("Accuracy: {} \n Error: {}".format(scores[1], 100-scores[1]*100))
