@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
 from PIL import Image, ImageDraw
 
 # Load CIFAR-10 dataset for training images
@@ -30,4 +30,82 @@ draw.rectangle([(50, 50), (174, 174)], fill=(255, 0, 0))
 # Save the image
 image.save('sample.jpg')
 
+# plt.show()
+
+# load a sample image
+img_path = 'sample.jpg'
+img = load_img(img_path)
+x = img_to_array(img)
+x = np.expand_dims(x, axis=0)
+
+# Create an instance of ImageDataGenerator with basic augmentation
+datagen = ImageDataGenerator(
+    rotation_range=40,
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    shear_range=0.2,
+    zoom_range=0.2,
+    horizontal_flip=True,
+    fill_mode='nearest'
+)
+
+# Generate batches of augmented images
+i = 0
+for batch in datagen.flow(x, batch_size=1):
+    plt.figure(i)
+    imgplot = plt.imshow(batch[0].astype('uint8'))
+    i += 1
+    if i % 4 == 0:
+        break
+
+plt.show()
+
+# Feature-wise and sample-wise normalization
+datagen = ImageDataGenerator(
+    featurewise_center=True,
+    featurewise_std_normalization=True,
+    samplewise_center=True,
+    samplewise_std_normalization=True,
+)
+
+# load the sample image again and fit the generator ( normally done on the training set )
+datagen.fit(x)
+
+# Generate batches of augmented images
+i = 0
+for batch in datagen.flow(x, batch_size=1):
+    plt.figure(i)
+    imgplot = plt.imshow(batch[0].astype('uint8'))
+    i += 1
+    if i % 4 == 0:
+        break
+
+plt.show()
+
+# Define a custom data augmentation function
+def add_random_noise(image):
+    noise = np.random.normal(0, 1, image.shape)
+    return image + noise
+
+# Create an instance of ImageDataGenerator with the custom augmentation
+datagen = ImageDataGenerator(preprocessing_function=add_random_noise)
+
+# Generate batches of augmented images
+i = 0
+for batch in datagen.flow(x, batch_size=1):
+    plt.figure(i)
+    imgplot = plt.imshow(batch[0].astype('uint8'))
+    i += 1
+    if i % 4 == 0:
+        break
+
+plt.show()
+
+# Visualizing multiple augmented versions of the same image
+plt.figure(figsize=(10, 10))
+for i, batch in enumerate(datagen.flow(x, batch_size=1)):
+    if i >= 4:
+        break
+    plt.subplot(2, 2, i+1)
+    plt.imshow(batch[0].astype('uint8'))
 plt.show()
